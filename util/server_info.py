@@ -3,7 +3,7 @@ import time
 
 import psutil
 
-from util import cmd_util
+from util import cmd_util, v2_util
 from util.schedule_util import schedule_job
 
 __status = {}
@@ -38,32 +38,37 @@ def refresh_status():
             loads()
             net()
     except Exception as e:
-        logging.warning('Failed to get system status information: ' + str(e))
+        logging.warning("Failed to get system status information: " + str(e))
 
 
 def v2_status():
-    result, code = cmd_util.exec_cmd('systemctl is-active v2ray')
-    results = result.split('\n')
-    has_result = False
-    for result in results:
-        if result.startswith('active'):
-            code = 0
-            has_result = True
-            break
-        elif result.startswith('inactive'):
-            code = 1
-            has_result = True
-            break
-
-    if not has_result:
-        code = 2
-    __status['v2'] = {
-        'code': code
+    # result, code = cmd_util.exec_cmd('systemctl is-active v2ray')
+    # results = result.split('\n')
+    # has_result = False
+    # for result in results:
+    #     if result.startswith('active'):
+    #         code = 0
+    #         has_result = True
+    #         break
+    #     elif result.startswith('inactive'):
+    #         code = 1
+    #         has_result = True
+    #         break
+    #
+    # if not has_result:
+    #     code = 2
+    code = v2_util.__get_stat_code()
+    version = v2_util.get_v2ray_version()
+    msg = v2_util.get_v2ray_error_msg()
+    __status["v2"] = {
+        "code": code,
+        "version": version,
+        "error_msg": msg,
     }
 
 
 def uptime():
-    __status['uptime'] = time.time() - psutil.boot_time()
+    __status["uptime"] = time.time() - psutil.boot_time()
 
 
 def cpu():
@@ -81,37 +86,26 @@ def cpu():
     else:
         percent = (total - idle) / total * 100
     __last_ct = cur_ct
-    __status['cpu'] = {
-        'percent': percent
-    }
+    __status["cpu"] = {"percent": percent}
 
 
 def memory():
     mem = psutil.virtual_memory()
-    __status['memory'] = {
-        'used': mem.used,
-        'total': mem.total
-    }
+    __status["memory"] = {"used": mem.used, "total": mem.total}
 
 
 def swap():
     swap_mem = psutil.swap_memory()
-    __status['swap'] = {
-        'used': swap_mem.used,
-        'total': swap_mem.total
-    }
+    __status["swap"] = {"used": swap_mem.used, "total": swap_mem.total}
 
 
 def disk():
-    d = psutil.disk_usage('/')
-    __status['disk'] = {
-        'total': d.total,
-        'used': d.used
-    }
+    d = psutil.disk_usage("/")
+    __status["disk"] = {"total": d.total, "used": d.used}
 
 
 def loads():
-    __status['loads'] = psutil.getloadavg()
+    __status["loads"] = psutil.getloadavg()
 
 
 __last_net_io = psutil.net_io_counters()
@@ -137,16 +131,10 @@ def net():
     up = (sent - __last_net_io.bytes_sent) / __get_interval
     down = (recv - __last_net_io.bytes_recv) / __get_interval
     tcp_count, udp_count = __get_net_tcp_udp_count()
-    __status['net_io'] = {
-        'up': up,
-        'down': down
-    }
-    __status['net_traffic'] = {
-        'sent': sent,
-        'recv': recv
-    }
-    __status['tcp_count'] = tcp_count
-    __status['udp_count'] = udp_count
+    __status["net_io"] = {"up": up, "down": down}
+    __status["net_traffic"] = {"sent": sent, "recv": recv}
+    __status["tcp_count"] = tcp_count
+    __status["udp_count"] = udp_count
     __last_net_io = cur_net_io
 
 

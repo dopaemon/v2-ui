@@ -1,0 +1,140 @@
+{
+  "api": {
+    "services": [
+      "HandlerService",
+      "LoggerService",
+      "StatsService"
+    ],
+    "tag": "api"
+  },
+  "dns": {},
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 62789,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1"
+      },
+      "tag": "api"
+    },
+    {
+      "listen": "0.0.0.0",
+      "port": 53815,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "alterId": 0,
+            "email": "test.IYi9PT5aZz",
+            "id": "920b4ff9-b821-41a6-9567-87da2d404e0c",
+            "level": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls"
+        ],
+        "enabled": true
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "none",
+        "tcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        }
+      },
+      "tag": "inbound-fYnXYggs5l"
+    },
+    {
+      "listen": "0.0.0.0",
+      "port": 30987,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "alterId": 0,
+            "email": "foo.kS2zaXVwhK",
+            "id": "e4659052-ba04-4b80-81b3-14c09a16017f",
+            "level": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls"
+        ],
+        "enabled": true
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "none",
+        "tcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        }
+      },
+      "tag": "inbound-Vr0g8yExwL"
+    }
+  ],
+  "log": {},
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    },
+    {
+      "protocol": "blackhole",
+      "settings": {},
+      "tag": "blocked"
+    }
+  ],
+  "policy": {
+    "levels": {
+      "0": {
+        "statsUserDownlink": true,
+        "statsUserUplink": true
+      }
+    },
+    "system": {
+      "statsInboundDownlink": true,
+      "statsInboundUplink": true
+    }
+  },
+  "reverse": {},
+  "routing": {
+    "rules": [
+      {
+        "inboundTag": [
+          "api"
+        ],
+        "outboundTag": "api",
+        "type": "field"
+      },
+      {
+        "ip": [
+          "geoip:private"
+        ],
+        "outboundTag": "blocked",
+        "type": "field"
+      },
+      {
+        "outboundTag": "blocked",
+        "protocol": [
+          "bittorrent"
+        ],
+        "type": "field"
+      }
+    ]
+  },
+  "stats": {},
+  "transport": {}
+}
